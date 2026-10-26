@@ -327,6 +327,16 @@ def test_plugins_command_fails_when_a_builtin_module_is_broken(monkeypatch, erro
     assert result.exception is error
 
 
+def test_plugins_command_fails_on_a_third_party_import_error_that_is_not_a_missing_package(
+    monkeypatch,
+):
+    error = ImportError("cannot import name 'x' from 'fastapi'", name="fastapi")
+    command = _fail_import_of(monkeypatch, "repowise.server.auth", error)
+    result = CliRunner().invoke(command, ["--format", "json"])
+    assert result.exit_code != 0
+    assert result.exception is error
+
+
 def test_plugins_command_skips_a_builtin_module_missing_a_third_party_package(monkeypatch):
     error = ModuleNotFoundError("No module named 'fastapi'", name="fastapi")
     command = _fail_import_of(monkeypatch, "repowise.server.auth", error)
